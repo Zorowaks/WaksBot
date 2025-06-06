@@ -1,0 +1,9 @@
+{
+  "token" : "",
+  "autoload": [
+    "reminder",
+    "manager",
+    "help",
+    "modmail"
+]
+}
