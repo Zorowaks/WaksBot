@@ -5,6 +5,7 @@ Easy to configure, scalable and designed to manage your discord servers.
 
 ## Main features
 
+- **Help** : A more terse help command.
 - **Manager** : Bot and plugin management
 - **Reminder**: Recall programming system
 - **ModMail**: A private messaging system between users and staff through DMs.
@@ -12,12 +13,15 @@ Easy to configure, scalable and designed to manage your discord servers.
 
 ## Commands 
 
+**Help** :
+
+ - `!help` -> Display the list of available commands.
+
 **Manager** :
 
   - `!load <plugin>` -> Load a plugin.
   - `!reload <plugin>` ->  Reload a plugin.
   - `!unload <plugin>` -> Unload a plugin.
-  - `!help` -> Display the list of available commands.
 
 **Reminder** : 
 
