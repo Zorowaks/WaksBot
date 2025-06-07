@@ -2,6 +2,11 @@ import discord
 from discord.ext import commands
 import json
 import asyncio
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+token = os.getenv("Token")
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -33,11 +38,7 @@ async def main():
     async with bot:
         await setup_plugins()
         with open('config.json', 'r') as f :
-            config = json.load(f)
-        token = config.get('token')
-        if not token :
-            print('Token invalide')
-            return    
+            config = json.load(f) 
         await bot.start(token)
 
 if __name__ == "__main__":
