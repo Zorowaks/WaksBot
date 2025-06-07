@@ -5,12 +5,30 @@ Easy to configure, scalable and designed to manage your discord servers.
 
 ## Main features
 
+- **Manager** : Bot and plugin management
+- **Reminder**: Recall programming system
 - **ModMail**: A private messaging system between users and staff through DMs.
 - **Modular configuration**: Plugins are dynamically loaded via `config.json`.
-- **Custom commands**:
-  - `!setmodmail` — Sets the channel where ModMail messages will be sent.
-  - `!reply` — Allows staff to respond to users' direct messages.
 
+## Commands 
+
+**Manager** :
+
+  - `!load <plugin>` -> Load a plugin.
+  - `!reload <plugin>` ->  Reload a plugin.
+  - `!unload <plugin>` -> Unload a plugin.
+  - `!help` -> Display the list of available commands.
+
+**Reminder** : 
+
+  - `!remind "task" <DD/MM/YYYY HH:MM>` -> Set a reminder.
+  - `!cancelremind "task"` -> Remove a reminder.
+
+**ModMail** :
+
+  - `!setmodmail <#channel>` ->  Set a channel where ModMail messages arrive.
+  - `!reply <user id> <message>` -> Reply to a user’s direct message.
+  
 ## Installation
 
 1. **Clone the project** :
