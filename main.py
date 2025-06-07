@@ -1,3 +1,7 @@
+# WaksBot
+# Copyright (c) 2025 Carol Legout-Sales
+# Licensed under the MIT License. See the LICENSE file for details.
+
 import discord
 from discord.ext import commands
 import json
