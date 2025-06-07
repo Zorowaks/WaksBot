@@ -14,6 +14,17 @@ class Reminder(commands.Cog):
         self.reminders = []
         self.load_reminders()
 
+    def get_next_reminder_id(self):
+        if os.path.exists(reminder_file):
+            with open(reminder_file, 'r') as f :
+                try:
+                    data = json.load(f)
+                    ids = [r.get("id", 0) for r in data]
+                    return max(ids, default=0) + 1
+                except json.JSONDecodeError :
+                    return 1
+        return 1          
+    
     def load_reminders(self):
         if os.path.exists(reminder_file):
             with open (reminder_file , 'r') as f:
@@ -22,12 +33,14 @@ class Reminder(commands.Cog):
                     remind_time = datetime.datetime.fromisoformat(r["time"])
                     delay = (remind_time - datetime.datetime.now()).total_seconds()
                     if delay > 0 :
-                        self.bot.loop.create_task(self.schedule_reminder(r['user_id'], r['task'], delay) )
+                        self.bot.loop.create_task(self.schedule_reminder(r['user_id'], r['task'], delay, r['id']) )
         else:
             with open(reminder_file, 'w') as f:
                 json.dump([], f)
 
     def save_reminder(self, user_id, task, remind_time):
+        reminder_id = self.get_next_reminder_id()
+
         if os.path.exists(reminder_file):
             with open(reminder_file, 'r') as f:
                 try:
@@ -38,19 +51,22 @@ class Reminder(commands.Cog):
             data = []
 
         data.append({
+            'id' : reminder_id,
             'user_id': user_id,
             'task': task,
             'time': remind_time.isoformat()
-    })
+        })
 
         with open(reminder_file, 'w') as f:
             json.dump(data, f, indent=4)
 
-    def delete_reminder(self, user_id, task):
+        return reminder_id    
+
+    def delete_reminder(self, user_id, reminder_id):
         with open(reminder_file, 'r') as f:
             data =  json.load(f)
         
-        data = [r for r in data if not (r['user_id'] == user_id and r['task'] == task) ]
+        data = [r for r in data if not (r['user_id'] == user_id and r['id'] == reminder_id) ]
         with open(reminder_file, 'w') as f:
             json.dump(data, f, indent=4)
 
@@ -64,20 +80,20 @@ class Reminder(commands.Cog):
                 await ctx.send('Veuillez saisir un format de date valide')
                 return
             
-            self.save_reminder(ctx.author.id, task, remind_time)
-            await self.schedule_reminder(ctx.author.id, task, delay)
+            reminder_id = self.save_reminder(ctx.author.id, task, remind_time)
+            self.bot.loop.create_task(self.schedule_reminder(ctx.author.id, task, delay, reminder_id))
             embed = discord.Embed(
-                title='**Rappel ajouté**',
+                title='Rappel ajouté',
                 description=f'Rappel ajouté par {ctx.author.mention} pour le {remind_time.strftime('%d/%m/%Y à %H:%M')} \n > Pseudo : {ctx.author} \n > Date : {remind_time.strftime('%d/%m/%Y %H:%M')}\n > Rappel : {task}',
                 color=discord.Color(0x27C917)
             )
-            embed.set_footer(text=f'{ctx.author.name}')
+            embed.set_footer(text=f'ID : {reminder_id}')
             await ctx.send(embed=embed)
         
         except ValueError:
             await ctx.send("Format invalide. Utilise `!remind \"tâche\" DD/MM/YYYY H:M`")
 
-    async def schedule_reminder(self, user_id, task, delay):
+    async def schedule_reminder(self, user_id, task, delay, reminder_id):
         await asyncio.sleep(delay)
         user = self.bot.get_user(user_id)
         if user:
@@ -88,42 +104,61 @@ class Reminder(commands.Cog):
                     color=discord.Color(0xeee917)
                 )
                 await user.send(f'Rappel : **{task}**')
-                self.delete_reminder(user_id, task)
+                self.delete_reminder(user_id, reminder_id)
             except:
                 pass
 
     @commands.command(help='Permet de supprimer un rappel existant.')    
-    async def cancelremind(self, ctx, task: str):
+    async def cancelremind(self, ctx, reminder_id : int):
         user_id = ctx.author.id
-        try:
-            with open(reminder_file, 'r') as f :
-                data = json.load(f)
-        except FileNotFoundError:
-            data = []
+        with open(reminder_file, 'r') as f :
+            data = json.load(f)
 
-        before = len(data)
-        data = [ r for r in data if not (r['user_id'] == user_id and r['task'].lower() == task.lower() )]
-        after = len(data)
-
-        with open(reminder_file, 'w') as f :
-            json.dump(data, f, indent=4)
-
-        if before == after :
-            embed = discord.Embed(
-                title='**Une erreur est survenue**',
-                description=f'Aucun rappel nommé `{task}` trouvé',
-                color=discord.Color.red()
-            )
-            embed.set_footer(text=f'{ctx.author.name}')
-            await ctx.send(embed=embed)
-        else:
+        if any(r['user_id'] == user_id and r['id'] == reminder_id for r in data):
+            self.delete_reminder(user_id, reminder_id)
             embed=discord.Embed(
                 title='**Rappel supprimé**',
-                description=f'`{task}` a bien été supprimé',
+                description=f"Le rappel avec l'ID `{reminder_id}` a bien été supprimé",
                 color=discord.Color.orange()
             )
             embed.set_footer(text=f'{ctx.author.name}')
             await ctx.send(embed=embed)
+        else:
+            embed = discord.Embed(
+            title='**Une erreur est survenue**',
+            description=f"Aucun rappel avec l'ID `{reminder_id}` trouvé",
+            color=discord.Color.red()
+            )
+            embed.set_footer(text=f'{ctx.author.name}')
+            await ctx.send(embed=embed)
+
+
+    @commands.command()
+    async def remindlist(self, ctx):
+        user_id = ctx.author.id
+        with open(reminder_file, 'r') as f :
+            data = json.load(f)
+        
+        user_reminders = [r for r in data if r['user_id'] ==  user_id]
+
+        if not user_reminders:
+            await ctx.send("Vous n'avez aucun rappel.")
+            return
+        
+        embed = discord.Embed(
+            title='**Vos rappels** :',
+            color=discord.Color(0x1d4ea6)
+        )
+
+        for r in user_reminders:
+            remind_time = datetime.datetime.fromisoformat(r['time'])
+            embed.add_field(
+                name=f"ID : {r['id']}",
+                value=f"**Date** : {remind_time.strftime('%d/%m/%Y %H:%M')}\n **Tâche** : {r['task']}",
+                inline=False
+            )
+
+        await ctx.send(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(Reminder(bot))
