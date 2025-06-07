@@ -29,11 +29,12 @@ Easy to configure, scalable and designed to manage your discord servers.
    Token=YOUR_TOKEN_DISCORD
 
 4. **Add your plugins to `config.json`** :
+   The plugin manager is mandatory at startup, otherwise you won't be able to add other plugins afterwards.
     ```json
     {
     "autoload" : ["manager", "help", "modmailconfig"]
     }
-5. **Launch the bot** :
+6. **Launch the bot** :
      ```bash
      py main.py
 
