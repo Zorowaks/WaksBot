@@ -26,7 +26,8 @@ Easy to configure, scalable and designed to manage your discord servers.
 **Reminder** : 
 
   - `!remind "task" <DD/MM/YYYY HH:MM>` -> Set a reminder.
-  - `!cancelremind "task"` -> Remove a reminder.
+  - `!remindlist` -> See the list of reminders.
+  - `!cancelremind <id>` -> Remove a reminder.
 
 **ModMail** :
 
