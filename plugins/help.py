@@ -12,7 +12,7 @@ class Help(commands.Cog):
         if command is None:
             embed = discord.Embed(
                 title="Aide - Commandes disponibles",
-                description="Voici la liste des commandes disponibles, triées par catégorie.",
+                description="Voici la liste des commandes disponibles, triées par plugin.",
                 color=discord.Color.blurple()
             )
 

@@ -20,69 +20,63 @@ class Modmail(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.author.bot or message.guild :
-            return
-
+    async def server_autocomplete(self, interaction: discord.Interaction, current: str):
         config = load_modmail_config()
-        guild = [
+        guilds = [
             guild for guild in self.bot.guilds
-            if str(guild.id) in config and guild.get_member(message.author.id)
+            if str(guild.id) in config and guild.get_member(interaction.user.id)
         ]
 
-        if not guild :
-            await message.channel.send('Aucun serveur trouvé avec ModMail où vous êtes membre.')
+        return [
+            app_commands.Choice(name=guild.name, value=str(guild.id))
+            for guild in guilds if current.lower() in guild.name.lower()
+        ][:25]
+
+    @app_commands.command(name='modmail', description='Envoyer un ModMail au staff (Uniquement en MP).') 
+    @app_commands.describe(server='Serveur sur lequel envoyer le ModMail.', message='contenue du ModMail.')
+    @app_commands.autocomplete(server=server_autocomplete)
+    async def modmail(self, interaction: discord.Interaction, server: str,  *, message: str):
+        if interaction.guild is not None:
+            await interaction.response.send_message('Cette commande doit être utilisée en MP', ephemeral=True)
             return
+        
+        config = load_modmail_config()
 
-        if len(guild) > 1 :
-            text = '**Sur quel serveur souhaitez vous envoyer votre message ?** \n'
-            for i, g in enumerate(guild, 1):
-                text += f'{i}.{g.name}\n'
-            await message.channel.send(text)
-
-            def check(m):
-                return m.author == message.author and m.content.isdigit()
-                
-            try:
-                reply = await self.bot.wait_for('message', check=check, timeout=30)
-                index = int(reply.content) - 1
-                guild = guild[index]
-
-            except:
-                await message.channel.send('Délai dépassé ou réponse invalide')
-                return
-        else:
-            guild = guild[0]
-
-        channel_id = config[str(guild.id)]
+        if server not in config:
+            await interaction.response.send_message('Serveur non trouvé ou non configuré.', ephemeral=True)
+            return
+        
+        guild = self.bot.get_guild(int(server))
+        if not guild:
+            await interaction.response.send_message('Aucun serveur trouvé avec le ModMail où vous êtes membre.')
+            return
+        
+        if not guild.get_member(interaction.user.id):
+            await interaction.response.send_message("Vous n'êtes pas membre de ce serveur.", ephemeral=True)
+            return
+        
+        channel_id = config[server]
         channel = guild.get_channel(channel_id)
-        if not channel :
-            await message.channel.send('Erreur : Salon ModMail introuvable')
+        if not channel:
+            await interaction.response.send_message('Erreur : Salon ModMail introuvable.', ephemeral=True)
             return
         
         embed = discord.Embed(
             title='**Nouveau mail reçu.**',
-            description=message.content,
+            description=message,
             color=discord.Color(0x1d4ea6),
             timestamp=datetime.now(pytz.timezone('Europe/Paris'))
         )
-        embed.set_author(name=str(message.author), icon_url=message.author.display_avatar.url)
-        embed.set_footer(text=f'ID utilisateur : {message.author.id}')
+        embed.set_author(name=str(interaction.user), icon_url=interaction.user.display_avatar.url)
+        embed.set_footer(text=f'ID utilisateur : {interaction.user.id}')
 
         await channel.send(embed=embed)
-        await message.channel.send('Ton message a bien été transmis !')
+        await interaction.response.send_message(f"Ton message a bien été transmis au staff de `{guild.name}` !")
 
     @has_permissions(manage_messages=True) 
     @app_commands.command(name="reply", description="Permet au staff de repondre au ModMail.")
     @app_commands.describe(user="Utilisateur", reponse='Message')
     async def reply(self, interaction: discord.Interaction, user: discord.User, *, reponse: str):
-        if user is None :
-            try:
-                user = await self.bot.fetch_user(user_id)
-            except discord.NotFound :
-                await interaction.response.send_message('Utilisateur introuvable.')
-                return
         try:
             embed=discord.Embed(
                 title='**Réponse du staff :**',
@@ -93,7 +87,7 @@ class Modmail(commands.Cog):
             await user.send(embed=embed)
             await interaction.response.send_message(f'Réponse envoyer à {user.name}.')
         except discord.Forbidden :
-            await interaction.response.send_message("Impossible d’envoyer un message à cet utilisateur.")
+            await interaction.response.send_message("Impossible d’envoyer un message à cet utilisateur.", ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(Modmail(bot))

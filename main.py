@@ -5,6 +5,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
+from discord.ext.commands import has_permissions
 import json
 import asyncio
 from dotenv import load_dotenv
@@ -35,6 +36,12 @@ async def setup_plugins():
             print(f'Plugin loaded : {plugin}')
         except Exception as e :
             print(f'Loading error {plugin} : {e}')
+
+@bot.tree.command(name="sync", description="Synchronise les commandes slash.")
+@commands.is_owner()
+async def sync(interaction: discord.Interaction):
+    await bot.tree.sync()
+    await interaction.response.send_message("Slash commands synchronisées.", ephemeral=True)
 
 @bot.event
 async def on_ready():
