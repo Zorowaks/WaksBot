@@ -33,6 +33,7 @@ Easy to configure, scalable and designed to manage your discord servers.
 **ModMail** :
 
   - `setmodmail <#channel>` ->  Set a channel where ModMail messages arrive.
+  - `modmail <server> <message>` -> Sends a modmail (for MP use only)
   - `reply <user> <message>` -> Reply to a user’s direct message.
   
 ## Installation
