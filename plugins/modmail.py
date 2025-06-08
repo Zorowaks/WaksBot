@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+from discord import app_commands
+from discord.ext.commands import has_permissions 
 from datetime import datetime
 import pytz
 import json
@@ -48,7 +50,7 @@ class Modmail(commands.Cog):
                 guild = guild[index]
 
             except:
-                message.channel.send('Délai dépassé ou réponse invalide')
+                await message.channel.send('Délai dépassé ou réponse invalide')
                 return
         else:
             guild = guild[0]
@@ -57,6 +59,7 @@ class Modmail(commands.Cog):
         channel = guild.get_channel(channel_id)
         if not channel :
             await message.channel.send('Erreur : Salon ModMail introuvable')
+            return
         
         embed = discord.Embed(
             title='**Nouveau mail reçu.**',
@@ -70,16 +73,15 @@ class Modmail(commands.Cog):
         await channel.send(embed=embed)
         await message.channel.send('Ton message a bien été transmis !')
 
-    @commands.command()
-    @commands.has_permissions(manage_messages=True) 
-    async def reply(self, ctx, user_id: int, *, reponse: str):
-        '''Permet au staff de répondre aux messages privés''' 
-        user = self.bot.get_user(user_id)
+    @has_permissions(manage_messages=True) 
+    @app_commands.command(name="reply", description="Permet au staff de repondre au ModMail.")
+    @app_commands.describe(user="Utilisateur", reponse='Message')
+    async def reply(self, interaction: discord.Interaction, user: discord.User, *, reponse: str):
         if user is None :
             try:
                 user = await self.bot.fetch_user(user_id)
             except discord.NotFound :
-                await ctx.send('Utilisateur introuvable.')
+                await interaction.response.send_message('Utilisateur introuvable.')
                 return
         try:
             embed=discord.Embed(
@@ -89,9 +91,9 @@ class Modmail(commands.Cog):
                 timestamp=datetime.now(pytz.timezone('Europe/Paris'))
             )
             await user.send(embed=embed)
-            await ctx.send(f'Réponse envoyer à {user.name}.')
+            await interaction.response.send_message(f'Réponse envoyer à {user.name}.')
         except discord.Forbidden :
-            await ctx.send("Impossible d’envoyer un message à cet utilisateur.")
+            await interaction.response.send_message("Impossible d’envoyer un message à cet utilisateur.")
 
 async def setup(bot):
     await bot.add_cog(Modmail(bot))

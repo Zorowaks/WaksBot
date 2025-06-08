@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+from discord import app_commands
+from discord.ext.commands import has_permissions 
 import os
 import json
 
@@ -19,13 +21,14 @@ class ModMailConfig(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(help='Permet de configurer le salon où les messages ModMail seront envoyés.')
-    @commands.has_permissions(administrator=True)
-    async def setmodmail(self, ctx, channel: discord.TextChannel):
+    @has_permissions(administrator=True)
+    @app_commands.command(name="setmodmail", description="Configure le channel où seront envoyé les ModMail.")
+    @app_commands.describe(channel='channel')
+    async def setmodmail(self, interaction: discord.Interaction, channel: discord.TextChannel):
         config = load_modmail_config(ModMail_File)
-        config[str(ctx.guild.id)] = channel.id
+        config[str(interaction.guild.id)] = channel.id
         save_modmail_config(config)
-        await ctx.send(f'Salon ModMail défini sur {channel.mention}')
+        await interaction.response.send_message(f'Salon ModMail défini sur {channel.mention}')
     
 async def setup(bot):
     await bot.add_cog(ModMailConfig(bot))

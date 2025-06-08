@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord import app_commands
 import discord
 import datetime
 import asyncio
@@ -70,28 +71,29 @@ class Reminder(commands.Cog):
         with open(reminder_file, 'w') as f:
             json.dump(data, f, indent=4)
 
-    @commands.command(help='Permet de créer un rappel à une date précise.')
-    async def remind(self, ctx, task: str, date: str, time:str):
+    @app_commands.command(name="remind", description="Créer un rappel")
+    @app_commands.describe(task='Tâche à rappeler', date='JJ/MM/AAAA', time='HH:MM')
+    async def remind(self, interaction: discord.Interaction ,task: str, date: str, time:str):
         try:
             remind_time = datetime.datetime.strptime(f"{date} {time}", "%d/%m/%Y %H:%M")
             now = datetime.datetime.now()
             delay = (remind_time - now).total_seconds()
             if delay <= 0:
-                await ctx.send('Veuillez saisir un format de date valide')
+                await interaction.response.send_message('Veuillez saisir un format de date valide')
                 return
             
-            reminder_id = self.save_reminder(ctx.author.id, task, remind_time)
-            self.bot.loop.create_task(self.schedule_reminder(ctx.author.id, task, delay, reminder_id))
+            reminder_id = self.save_reminder(interaction.user.id, task, remind_time)
+            self.bot.loop.create_task(self.schedule_reminder(interaction.user.id, task, delay, reminder_id))
             embed = discord.Embed(
                 title='Rappel ajouté',
-                description=f'Rappel ajouté par {ctx.author.mention} pour le {remind_time.strftime('%d/%m/%Y à %H:%M')} \n > Pseudo : {ctx.author} \n > Date : {remind_time.strftime('%d/%m/%Y %H:%M')}\n > Rappel : {task}',
+                description=f'Rappel ajouté par {interaction.user.mention} pour le {remind_time.strftime('%d/%m/%Y à %H:%M')} \n > Pseudo : {interaction.user.name} \n > Date : {remind_time.strftime('%d/%m/%Y %H:%M')}\n > Rappel : {task}',
                 color=discord.Color(0x27C917)
             )
             embed.set_footer(text=f'ID : {reminder_id}')
-            await ctx.send(embed=embed)
+            await interaction.response.send_message(embed=embed)
         
         except ValueError:
-            await ctx.send("Format invalide. Utilise `!remind \"tâche\" DD/MM/YYYY H:M`")
+            await interaction.response.send_message("Format invalide. Utilise `!remind \"tâche\" DD/MM/YYYY H:M`")
 
     async def schedule_reminder(self, user_id, task, delay, reminder_id):
         await asyncio.sleep(delay)
@@ -100,17 +102,18 @@ class Reminder(commands.Cog):
             try:
                 embed = discord.Embed(
                     title='**Rappel :**',
-                    description="N'oublie pas de faire {task}",
+                    description=f"N'oublie pas de faire {task}",
                     color=discord.Color(0xeee917)
                 )
-                await user.send(f'Rappel : **{task}**')
+                await user.send(embed=embed)
                 self.delete_reminder(user_id, reminder_id)
             except:
                 pass
 
-    @commands.command(help='Permet de supprimer un rappel existant.')    
-    async def cancelremind(self, ctx, reminder_id : int):
-        user_id = ctx.author.id
+    @app_commands.command(name="cancelremind", description="Supprime un rappel")
+    @app_commands.describe(reminder_id="ID du rappel à supprimer")   
+    async def cancelremind(self, interaction: discord.Interaction, reminder_id : int):
+        user_id = interaction.user.id
         with open(reminder_file, 'r') as f :
             data = json.load(f)
 
@@ -121,28 +124,29 @@ class Reminder(commands.Cog):
                 description=f"Le rappel avec l'ID `{reminder_id}` a bien été supprimé",
                 color=discord.Color.orange()
             )
-            embed.set_footer(text=f'{ctx.author.name}')
-            await ctx.send(embed=embed)
+            embed.set_footer(text=f'{interaction.user}')
+            await interaction.response.send_message(embed=embed)
         else:
             embed = discord.Embed(
             title='**Une erreur est survenue**',
             description=f"Aucun rappel avec l'ID `{reminder_id}` trouvé",
             color=discord.Color.red()
             )
-            embed.set_footer(text=f'{ctx.author.name}')
-            await ctx.send(embed=embed)
+            embed.set_footer(text=f'{interaction.user.name}')
+            await interaction.response.send_message(embed=embed)
 
 
-    @commands.command()
-    async def remindlist(self, ctx):
-        user_id = ctx.author.id
+    @app_commands.command(name="remindlist", description="Voir la liste de ses rappels")
+    @app_commands.describe()
+    async def remindlist(self, interaction: discord.Interaction):
+        user_id = interaction.user.id
         with open(reminder_file, 'r') as f :
             data = json.load(f)
         
         user_reminders = [r for r in data if r['user_id'] ==  user_id]
 
         if not user_reminders:
-            await ctx.send("Vous n'avez aucun rappel.")
+            await interaction.response.send_message("Vous n'avez aucun rappel.")
             return
         
         embed = discord.Embed(
@@ -158,7 +162,7 @@ class Reminder(commands.Cog):
                 inline=False
             )
 
-        await ctx.send(embed=embed)
+        await interaction.response.send_message(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(Reminder(bot))

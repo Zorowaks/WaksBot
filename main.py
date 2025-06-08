@@ -4,6 +4,7 @@
 
 import discord
 from discord.ext import commands
+from discord import app_commands
 import json
 import asyncio
 from dotenv import load_dotenv
@@ -17,6 +18,7 @@ intents.message_content = True
 intents.members = True
 
 bot = commands.Bot(command_prefix="!",help_command=None ,intents=intents)
+tree = bot.tree
 
 async def setup_plugins():
     try:
@@ -36,13 +38,21 @@ async def setup_plugins():
 
 @bot.event
 async def on_ready():
+    await bot.wait_until_ready()
+    try:
+        synced = await bot.tree.sync()
+        print('Synchronized slash commands')
+    except Exception as e :
+        print(f'Synchronization error : {e}')
     print(f'Logged on as {bot.user}')
 
 async def main():
     async with bot:
         await setup_plugins()
         with open('config.json', 'r') as f :
-            config = json.load(f) 
+            config = json.load(f)
+            if not token :
+                raise ValueError('Token manquant')
         await bot.start(token)
 
 if __name__ == "__main__":
