@@ -15,24 +15,25 @@ Easy to configure, scalable and designed to manage your discord servers.
 
 **Help** :
 
- - `!help` -> Display the list of available commands.
+ - `help` -> Display the list of available commands.
+ - `help <command>` -> displays information about the command
 
 **Manager** :
 
-  - `!load <plugin>` -> Load a plugin.
-  - `!reload <plugin>` ->  Reload a plugin.
-  - `!unload <plugin>` -> Unload a plugin.
+  - `load <plugin>` -> Load a plugin.
+  - `reload <plugin>` ->  Reload a plugin.
+  - `unload <plugin>` -> Unload a plugin.
 
 **Reminder** : 
 
-  - `!remind "task" <DD/MM/YYYY HH:MM>` -> Set a reminder.
-  - `!remindlist` -> See the list of reminders.
-  - `!cancelremind <id>` -> Remove a reminder.
+  - `remind <task> <DD/MM/YYYY HH:MM>` -> Set a reminder.
+  - `remindlist` -> See the list of reminders.
+  - `cancelremind <id>` -> Remove a reminder.
 
 **ModMail** :
 
-  - `!setmodmail <#channel>` ->  Set a channel where ModMail messages arrive.
-  - `!reply <user id> <message>` -> Reply to a user’s direct message.
+  - `setmodmail <#channel>` ->  Set a channel where ModMail messages arrive.
+  - `reply <user> <message>` -> Reply to a user’s direct message.
   
 ## Installation
 
