@@ -5,13 +5,20 @@ Easy to configure, scalable and designed to manage your discord servers.
 
 ## Main features
 
+- **Admin** : Bot management
 - **Help** : A more terse help command.
-- **Manager** : Bot and plugin management
+- **Manager** : Plugin management
 - **Reminder**: Recall programming system
 - **ModMail**: A private messaging system between users and staff through DMs.
 - **Modular configuration**: Plugins are dynamically loaded via `config.json`.
 
 ## Commands 
+
+**Admin** :
+
+- `shutdown` -> turn off bot.
+- `restart` -> restart the bot.
+- `sync` -> synchronizes commands.
 
 **Help** :
 
@@ -26,7 +33,7 @@ Easy to configure, scalable and designed to manage your discord servers.
 
 **Reminder** : 
 
-  - `remind <task> <DD/MM/YYYY HH:MM>` -> Set a reminder.
+  - `remind <task> <DD/MM/YYYY> <HH:MM>` -> Set a reminder.
   - `remindlist` -> See the list of reminders.
   - `cancelremind <id>` -> Remove a reminder.
 
@@ -41,7 +48,6 @@ Easy to configure, scalable and designed to manage your discord servers.
 1. **Clone the project** :
    ```bash
    git clone https://github.com/Zorowaks/WaksBot.git
-   cd WaksBot
 
 2. **Install dependencies** :
     ```bash
