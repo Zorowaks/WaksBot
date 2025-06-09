@@ -13,7 +13,7 @@ class Help(commands.Cog):
             embed = discord.Embed(
                 title="Aide - Commandes disponibles",
                 description="Voici la liste des commandes disponibles, triées par plugin.",
-                color=discord.Color.blurple()
+                color=discord.Color.purple()
             )
 
             for cog_name, cog in self.bot.cogs.items():
@@ -32,7 +32,7 @@ class Help(commands.Cog):
                     embed = discord.Embed(
                         title=f"Aide pour /{cmd.name}",
                         description=cmd.description or "Aucune description.",
-                        color=discord.Color.green()
+                        color=discord.Color.purple()
                     )
                     if cmd.parameters:
                         params = "\n".join(f"• `{p.name}`: {p.description or 'Pas de description'}" for p in cmd.parameters)

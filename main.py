@@ -37,17 +37,11 @@ async def setup_plugins():
         except Exception as e :
             print(f'Loading error {plugin} : {e}')
 
-@bot.tree.command(name="sync", description="Synchronise les commandes slash.")
-@commands.is_owner()
-async def sync(interaction: discord.Interaction):
-    await bot.tree.sync()
-    await interaction.response.send_message("Slash commands synchronisées.", ephemeral=True)
-
 @bot.event
 async def on_ready():
     await bot.wait_until_ready()
     try:
-        synced = await bot.tree.sync()
+        await bot.tree.sync()
         print('Synchronized slash commands')
     except Exception as e :
         print(f'Synchronization error : {e}')
