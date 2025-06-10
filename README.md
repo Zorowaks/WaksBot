@@ -18,7 +18,6 @@ Easy to configure, scalable and designed to manage your discord servers.
 
 - `shutdown` -> turn off bot.
 - `restart` -> restart the bot.
-- `sync` -> synchronizes commands.
 
 **Help** :
 
