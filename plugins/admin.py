@@ -13,15 +13,6 @@ class Admin(commands.Cog):
         app = await self.bot.application_info()
         return interaction.user.id == app.owner.id
 
-    @app_commands.command(name="sync", description="Synchronise les commandes slash.")
-    async def sync(self, interaction: discord.Interaction):
-        if not await self.is_owner(interaction):
-            await interaction.response.send_message("Tu n'es pas autorisé à utiliser cette commande.", ephemeral=True)
-            return
-
-        await self.bot.tree.sync()
-        await interaction.response.send_message("Commandes synchronisées.", ephemeral=True)
-
     @app_commands.command(name="shutdown", description="Éteint le bot.")
     async def shutdown(self, interaction: discord.Interaction):
         if not await self.is_owner(interaction):
@@ -29,6 +20,7 @@ class Admin(commands.Cog):
             return
 
         await interaction.response.send_message("Arrêt du bot...", ephemeral=True)
+        print('Bot off')
         await self.bot.close()
 
     @app_commands.command(name="restart", description="Redémarre le bot.")
@@ -38,6 +30,7 @@ class Admin(commands.Cog):
             return
 
         await interaction.response.send_message("Redémarrage du bot...", ephemeral=True)
+        print('Bot is restarting')
         await self.bot.close()
         os.execv(sys.executable, ['python'] + sys.argv)
 
