@@ -3,6 +3,8 @@
     "reminder",
     "manager",
     "help",
-    "modmail"
+    "modmail",
+    "modmailconfig",
+    "admin"
 ]
 }

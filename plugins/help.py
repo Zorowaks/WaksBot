@@ -6,31 +6,39 @@ class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="help", description="Affiche la liste des commandes disponible.")
-    @app_commands.describe(command="Nom d'une commande")
+    @app_commands.command(name="help", description="Affiche la liste des commandes disponibles triées par plugin.")
+    @app_commands.describe(command="Nom d'une commande (ex: remind)")
     async def help(self, interaction: discord.Interaction, command: str = None):
         if command is None:
             embed = discord.Embed(
-                title="Aide - Commandes disponibles",
-                description="Voici la liste des commandes disponibles, triées par plugin.",
+                title="**WaksBot** help",
+                description="Voici la liste des commandes disponibles de **WaksBot**.",
                 color=discord.Color.purple()
             )
 
+            # Ajout des commandes par Cog
             for cog_name, cog in self.bot.cogs.items():
-                command_list = [cmd.name for cmd in cog.get_app_commands() if cmd.name != "help"]
-                if command_list:
-                    embed.add_field(
-                        name=f"{cog_name}",
-                        value=", ".join(f"`/{cmd}`" for cmd in command_list),
-                        inline=False
-                    )
+                cmds = [f"`/{cmd.qualified_name}`" for cmd in cog.get_app_commands()]
+                if cmds:
+                    embed.add_field(name=cog_name, value=", ".join(cmds), inline=False)
+
+            # Ajout manuel des groupes non-Cogs (comme /plugin)
+            plugin_group = next((cmd for cmd in self.bot.tree.get_commands() if cmd.name == "plugin"), None)
+            if plugin_group and isinstance(plugin_group, app_commands.Group):
+                subcommands = [f"`/{cmd.qualified_name}`" for cmd in plugin_group.walk_commands()]
+                if subcommands:
+                    embed.add_field(name="Plugin", value=", ".join(subcommands), inline=False)
+
             embed.set_footer(text="Utilise /help <commande> pour plus d’infos.")
             await interaction.response.send_message(embed=embed)
+
         else:
-            for cmd in self.bot.tree.get_commands():
-                if cmd.name == command:
+            # Détail d'une commande donnée
+            search = command.lower()
+            for cmd in self.bot.tree.walk_commands():
+                if cmd.qualified_name == search:
                     embed = discord.Embed(
-                        title=f"Aide pour /{cmd.name}",
+                        title=f"Aide pour `/{cmd.qualified_name}`",
                         description=cmd.description or "Aucune description.",
                         color=discord.Color.purple()
                     )
@@ -39,7 +47,8 @@ class Help(commands.Cog):
                         embed.add_field(name="Arguments", value=params, inline=False)
                     await interaction.response.send_message(embed=embed)
                     return
-            await interaction.response.send_message(f"Commande `/`{command}` introuvable.`", ephemeral=True)
+
+            await interaction.response.send_message(f"Commande `/`{search}` introuvable.", ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(Help(bot))
