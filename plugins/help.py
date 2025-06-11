@@ -16,13 +16,11 @@ class Help(commands.Cog):
                 color=discord.Color.purple()
             )
 
-            # Ajout des commandes par Cog
             for cog_name, cog in self.bot.cogs.items():
-                cmds = [f"`/{cmd.qualified_name}`" for cmd in cog.get_app_commands()]
+                cmds = [f"`/{cmd.qualified_name}`" for cmd in cog.get_app_commands() if cmd.qualified_name != "help"]
                 if cmds:
                     embed.add_field(name=cog_name, value=", ".join(cmds), inline=False)
 
-            # Ajout manuel des groupes non-Cogs (comme /plugin)
             plugin_group = next((cmd for cmd in self.bot.tree.get_commands() if cmd.name == "plugin"), None)
             if plugin_group and isinstance(plugin_group, app_commands.Group):
                 subcommands = [f"`/{cmd.qualified_name}`" for cmd in plugin_group.walk_commands()]
@@ -33,7 +31,6 @@ class Help(commands.Cog):
             await interaction.response.send_message(embed=embed)
 
         else:
-            # Détail d'une commande donnée
             search = command.lower()
             for cmd in self.bot.tree.walk_commands():
                 if cmd.qualified_name == search:
