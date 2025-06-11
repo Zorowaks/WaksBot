@@ -26,9 +26,10 @@ Easy to configure, scalable and designed to manage your discord servers.
 
 **Manager** :
 
-  - `load <plugin>` -> Load a plugin.
-  - `reload <plugin>` ->  Reload a plugin.
-  - `unload <plugin>` -> Unload a plugin.
+  - `plugin load <plugin>` -> Load a plugin.
+  - `plugin reload <plugin>` ->  Reload a plugin.
+  - `plugin unload <plugin>` -> Unload a plugin.
+  - `plugin list` -> View the list of loaded plugins
 
 **Reminder** : 
 
