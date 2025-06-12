@@ -7,7 +7,8 @@ Easy to configure, scalable and designed to manage your discord servers.
 
 - **Admin** : Bot management
 - **Help** : A more terse help command.
-- **Manager** : Plugin management
+- **Manager** : Plugin management.
+- **Log Manager** : Plugin for server message logging.
 - **Reminder**: Recall programming system
 - **ModMail**: A private messaging system between users and staff through DMs.
 - **Modular configuration**: Plugins are dynamically loaded via `config.json`.
@@ -31,6 +32,10 @@ Easy to configure, scalable and designed to manage your discord servers.
   - `plugin unload <plugin>` -> Unload a plugin.
   - `plugin list` -> View the list of loaded plugins
 
+**Log Manager** :
+
+  - `setlog <channel>` -> configure log channel.
+
 **Reminder** : 
 
   - `remind <task> <DD/MM/YYYY> <HH:MM>` -> Set a reminder.
@@ -39,7 +44,7 @@ Easy to configure, scalable and designed to manage your discord servers.
 
 **ModMail** :
 
-  - `setmodmail <#channel>` ->  Set a channel where ModMail messages arrive.
+  - `setmodmail <channel>` ->  Set a channel where ModMail messages arrive.
   - `modmail <server> <message>` -> Sends a modmail (for MP use only)
   - `reply <user> <message>` -> Reply to a user’s direct message.
   
