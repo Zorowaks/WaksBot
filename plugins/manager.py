@@ -39,7 +39,13 @@ class PluginManager(app_commands.Group):
         loaded = list(self.bot.extensions.keys())
         if loaded:
             plugins = "\n".join(f"• `{ext.replace('plugins.', '')}`" for ext in loaded if ext.startswith("plugins."))
-            await interaction.response.send_message(f"Plugins chargés :\n{plugins}", ephemeral=True)
+            embed = discord.Embed(
+                title='Plugin chargé.',
+                description=f'\n{plugins}',
+                color=discord.Color.purple()
+            )
+            embed.set_footer(text=interaction.guild.name)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
             await interaction.response.send_message("Aucun plugin chargé.", ephemeral=True)
 
