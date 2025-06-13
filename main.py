@@ -16,6 +16,8 @@ token = os.getenv("Token")
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.guilds = True
+intents.messages = True
 intents.members = True
 
 bot = commands.Bot(command_prefix="!",help_command=None ,intents=intents)
@@ -23,7 +25,7 @@ tree = bot.tree
 
 async def setup_plugins():
     try:
-        with open('config.json', 'r') as f:
+        with open('data/config.json', 'r') as f:
             config = json.load(f)
         plugins = config.get('autoload', [])
     except Exception as e :
@@ -50,7 +52,7 @@ async def on_ready():
 async def main():
     async with bot:
         await setup_plugins()
-        with open('config.json', 'r') as f :
+        with open('data/config.json', 'r') as f :
             config = json.load(f)
             if not token :
                 raise ValueError('Token manquant')

@@ -1,0 +1,11 @@
+{
+  "autoload": [
+    "reminder",
+    "manager",
+    "help",
+    "modmail",
+    "modmailconfig",
+    "admin",
+    "logmanager"
+]
+}

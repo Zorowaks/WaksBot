@@ -6,7 +6,7 @@ import asyncio
 import json
 import os
 
-reminder_file = "reminders.json"
+reminder_file = "data/reminders.json"
 
 class Reminder(commands.Cog):
     '''Gère les rappels.'''

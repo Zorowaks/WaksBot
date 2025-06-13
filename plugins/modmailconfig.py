@@ -5,7 +5,7 @@ from discord.ext.commands import has_permissions
 import os
 import json
 
-ModMail_File = "modmailconfig.json"
+ModMail_File = "data/modmailconfig.json"
 
 def load_modmail_config(ModMail_File):
     if not os.path.exists(ModMail_File):

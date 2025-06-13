@@ -7,7 +7,7 @@ import pytz
 import json
 import os
 
-ConfigFile = 'modmailconfig.json'
+ConfigFile = 'data/modmailconfig.json'
 
 def load_modmail_config():
     if not os.path.exists(ConfigFile):
